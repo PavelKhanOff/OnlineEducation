@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core
+  namespace: default
+  labels:
+    app: core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: core
+  template:
+    metadata:
+      labels:
+        pod: core
+    spec:
+      containers:
+        - name: core
+          image: "{{ .Values.image.repository}}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 9000
+          resources: { }
+          env:
+            - name: POSTGRES_DB
+              value: eduonedb
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres.acid-minimal-cluster.credentials
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres.acid-minimal-cluster.credentials
+                  key: password
+
+            - name: POSTGRES_PORT
+              value: "5432"
+
+            - name: POSTGRES_HOST
+              value: acid-minimal-cluster
+
+            - name: ELASTIC_HOST
+              value: elasticsearch.kube-logging
+
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: password
+
+      imagePullSecrets:
+        - name: gitlab-regcred
+
+      restartPolicy: Always
+
+status: {}

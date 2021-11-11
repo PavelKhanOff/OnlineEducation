@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: core-service
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    pod: core
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30010
